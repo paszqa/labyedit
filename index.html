@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>LabyEdit</title>
+  <style>
+    * {
+        user-select: none;
+    }
+    body{
+      background-image: url("images/background2.png");
+      background-repeat: repeat;
+    }
+    .everything{
+        display: flex;
+        flex-direction: row; /* Arrange main-left and main-right side by side */
+        width: 100%;
+        height: 90vh; /* 100% of the viewport height */
+    }
+    .main-left {
+      border: 0px solid black;
+      margin: 0px;
+      padding: 0;
+      width: 300px;
+      height: 100%;
+      text-align: center;
+      flex-shrink: 0; /* Prevent main-left from shrinking */
+    }
+    
+    .main-right {
+        /* flex: 1; Takes up the remaining space */
+        padding: 0;
+        border: 0px solid black;
+        margin: 0px;
+        height: 100%;
+        overflow: hidden;
+        flex-grow: 1;
+    }
+    /* Style for the panel box */
+    .panel-box {
+      border: 0px solid black;
+      margin: 30px;
+      overflow: hidden; /* Ensure content does not overflow */
+      width: 100%; /* Adjust the width as needed */
+      height: 90%; /* Adjust the height as needed */
+      background-image: url("images/background4.png");
+      background-repeat: repeat;
+    }
+    #byte-output{
+        margin: 0;
+        padding: 0;
+        padding-left: 40px;
+        padding-top: 5px;
+        width: 90%;
+        height: 5%;
+        font-family: Roboto;
+        font-size: 20px;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    /* Style for the grid container */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(4, 20px);
+      grid-gap: 0px;
+      transition: transform 0.5s ease-in-out;
+      overflow: hidden;
+    }
+    /* Updated CSS for the "centered-grid" class */
+    .centered-grid {
+        display: grid;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        transform-origin: center;
+    }
+    /* Style for the grid cells */
+    .grid-cell {
+        width: 20px;
+        height: 20px;
+        margin: 0;
+        padding: 0;
+        border: 0px solid rgb(124, 124, 124);
+        background-color: transparent;
+        display: grid;
+        grid-template-columns: repeat(10, 2px);
+        grid-gap: 0px;
+        transition: transform 0.5s ease-in-out;
+        text-align: center;
+        vertical-align: bottom;
+        font-size: 8px;
+        font-family: Roboto;
+        font-weight: 500;
+        /*pointer-events: none;*/
+    }
+    /* Add a blue tint effect when hovering over a grid cell */
+    .grid-cell:hover {
+        background-color: rgba(0, 0, 255, 0.925); /* Blue tint color with alpha (transparency) */
+    }
+        /* Stretch the image to cover the entire cell */
+    .grid-cell img {
+        width: 20px;
+        height: 20px;
+        object-fit: cover;
+    }
+    /* Add a blue tint effect when hovering over a grid cell */
+    .grid-cell:hover img {
+        filter: brightness(200%) saturate(120%);
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+
+    .scoreBox{
+        overflow: visible;
+        /*display: flex;*/
+        width: 20px;
+        margin: 0;
+        margin-top: 10px;
+        text-align: center;
+        vertical-align: bottom;
+        font-size: 8px;
+        font-family: Roboto;
+        font-weight: 800;
+        color: rgb(255, 255, 255);
+        text-shadow: 
+            -1px -1px 1px #000,
+            0   -1px 1px #000,
+            1px -1px 1px #000,
+            1px  0   1px #000,
+            1px  1px 1px #000,
+            0    1px 1px #000,
+            -1px  1px 1px #000,
+            -1px  0   1px #000;
+        position: absolute; /* Position independently */
+        z-index: 1; /* Set a higher z-index */
+        pointer-events: none;
+    }
+    .zero {
+        font-weight: 300;
+    }
+    .smallCell{
+        width: 2px;
+        height: 2px;
+        overflow: visible;
+        margin: 0;
+        /*pointer-events: none;*/
+    }
+    .startGoal{
+        display: block;
+        margin: 0;
+        margin-top: -10px;
+        margin-left: -10px;
+        width: 20px;
+        height: 20px;
+        position: absolute; /* Position independently */
+        z-index: 1; /* Set a higher z-index */
+    }
+    .dotContainer{
+        width: 2px;
+        height: 2px;
+        margin: 0;
+        padding: 0;
+        overflow: visible;
+        display: flex;
+        position: absolute;
+        /* margin-top: -8px; */
+        /* margin-left: -8px; */
+        /* ignore interaction of image */
+    }
+    .dotContainer img{
+        background-image: url("images/dot2.png");
+        background-repeat: no-repeat;
+        background-size: 100px 100px;
+        width: 4px;
+        height: 4px;
+        margin: 0;
+        margin-top: -2px;
+        margin-left: -2px;
+        padding: 0;
+        /* ignore interaction of image */
+    }
+    .pickupContainer{
+        width: 2px;
+        height: 2px;
+        margin: 0;
+        padding: 0;
+        overflow: visible;
+        display: flex;
+        z-index: 2; /* Set a higher z-index */
+        /* margin-top: -8px; */
+        /* margin-left: -8px; */
+        /* ignore interaction of image */
+    }
+    .pickupContainer img{
+        width: 20px;
+        height: 20px;
+        margin: 0;
+        margin-top: -10px;
+        margin-left: -10px;
+        padding: 0;
+        z-index: 2; /* Set a higher z-index */
+        /* ignore interaction of image */
+    }
+
+    .custom-file-input {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      background-color: #3498db;
+      color: #fff;
+      padding: 6px 12px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    .custom-file-input:hover{
+        background-color: #111;
+    }
+        /* Style for the real file input (hidden) */
+    .real-file-input {
+      position: absolute;
+      top: 0;
+      right: 0;
+      margin: 0;
+      padding: 0;
+      font-size: 0px;
+      cursor: pointer;
+      opacity: 0;
+    }
+    .logo-container{
+        display: flex;
+        height: 100px;
+        width: 100%;
+        margin-top: 20px;
+        margin-bottom: 40px;
+    }
+    .logo{
+        width: 100px;
+        height: 100%;
+        background-image: url("images/logo2.png");
+        background-repeat: no-repeat;
+        background-size: 100px 100px;
+    }
+    .logotext{
+        width: 200px;
+        height: 100%;
+        background-image: url("images/logoLabyEdit.png");
+        background-repeat: no-repeat;
+        background-size: 200px 100px;
+    }
+    .prettyButton{
+        display: inline-block;
+        margin: auto;
+        margin-top: 5px;
+        width: 80%;
+        height: 25px;
+        border: 0px;
+        border-radius: 5px;
+        background: rgb(59,166,8);
+        background: linear-gradient(90deg, rgba(59,166,8,1) 26%, rgba(97,181,85,1) 89%);
+        color: #002504;
+        font-family: Roboto;
+        font-size: 15px;
+        font-weight: 800;
+        line-height: 20px;
+        vertical-align: middle;
+        padding-top: 5px;
+    }
+    .prettyButton:hover{
+        background: rgb(136,218,97);
+        background: linear-gradient(90deg, rgba(136,218,97,1) 26%, rgba(176,236,167,1) 89%);
+    }
+    .mapInfo{
+        margin-top: 10px;
+        font-family: Roboto;
+        font-size: 14px;
+        font-weight: 800;
+        line-height: 18px;
+        display: inline-block;
+        width: 300px;
+    }
+    .mapInfoLine{
+        display: flex;
+        width: 100%;
+    }
+    .mapInfoTitle{
+        width: 150px;
+        text-align: right;
+        margin-right: 10px;
+    }
+    .mapSize{
+        flex: 1;
+    }
+    .wall{
+        background-image: url("images/wall.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .wall:hover{
+        filter: brightness(200%) saturate(120%);
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .floor{
+        background-image: url("images/floor.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .floor:hover{
+        filter: brightness(200%) saturate(120%);
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .holeBottomLeft{
+        background-image: url("images/holeBottomLeft.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .holeBottomLeft:hover{
+        filter: brightness(200%) saturate(120%);
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .holeBottomRight{
+        background-image: url("images/holeBottomRight.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .holeBottomRight:hover{
+        filter: brightness(200%) saturate(120%);
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .holeTopRight{
+        background-image: url("images/holeTopRight.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .holeTopRight:hover{
+        filter: brightness(200%) saturate(120%);
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .holeTopLeft{
+        background-image: url("images/holeTopLeft.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .holeTopLeft:hover{
+        filter: brightness(200%) saturate(120%);
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .shutterBottomLeft{
+        background-image: url("images/shutterBottomLeft.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .shutterBottomLeft:hover{
+        filter: brightness(200%) saturate(120%);
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .shutterBottomRight{
+        background-image: url("images/shutterBottomRight.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .shutterBottomRight:hover{
+        filter: brightness(200%) saturate(120%);
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .shutterTopRight{
+        background-image: url("images/shutterTopRight.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .hshutterTopRight:hover{
+        filter: brightness(200%) saturate(120%);
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .shutterTopLeft{
+        background-image: url("images/shutterTopLeft.png");
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .shutterTopLeft:hover{
+        filter: brightness(200%) saturate(120%);
+        transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+    }
+    .toolbox {
+    width: 300px;
+    text-align: center; /* Center-align text within the toolbox */
+}
+
+.drawgeometry,
+.drawscore {
+    padding: 10px; /* Add some padding around the text */
+    display: flex; /* Use flexbox to arrange labels in a row */
+    flex-direction: row; /* Arrange labels in a row */
+    align-items: center; /* Center-align labels vertically */
+    justify-content: flex-start; /* Align labels to the left side */
+        border: 0px;
+        border-radius: 5px;
+        background: rgb(59,166,8);
+        background: linear-gradient(90deg, rgb(123, 185, 94) 26%, rgb(163, 194, 159) 89%);
+        color: #002504;
+        font-family: Roboto;
+        font-size: 15px;
+        font-weight: 800;
+        vertical-align: middle;
+        margin: 0;
+        margin-bottom: 5px;
+}
+
+.drawpickups {
+  padding: 10px; /* Add some padding around the text */
+  display: flex; /* Use flexbox to arrange labels in a row */
+  flex-wrap: wrap; /* Allow elements to wrap to the next row */
+  align-items: center; /* Center-align labels vertically */
+  justify-content: flex-start; /* Align labels to the left side */
+  border: 0px;
+  border-radius: 5px;
+  background: rgb(59, 166, 8);
+  background: linear-gradient(90deg, rgb(123, 185, 94) 26%, rgb(163, 194, 159) 89%);
+  color: #002504;
+  font-family: Roboto;
+  font-size: 15px;
+  font-weight: 800;
+  vertical-align: middle;
+  margin: 0;
+  margin-bottom: 5px;
+}
+.drawgeometry .drawfloor,
+.drawgeometry .drawwall,
+.drawgeometry .drawhole,
+.drawgeometry .drawshutter,
+.drawscore .addscore,
+.drawscore .subtractscore,
+.drawscore .add5score,
+.drawscore .subtract5score,
+.drawscore .zeroscore,
+.drawpickups .gemGreen, 
+.drawpickups .gemRed, 
+.drawpickups .gemBlue, 
+.drawpickups .closeShutters, 
+.drawpickups .rabbit,
+.drawpickups .ghost,
+.drawpickups .hourglass,
+.drawpickups .slow,
+.drawpickups .teleport1,
+.drawpickups .teleport2,
+.drawpickups .teleport3,
+.drawpickups .teleport4,
+.drawpickups .target1,
+.drawpickups .target2,
+.drawpickups .target3,
+.drawpickups .target4,
+.drawpickups .eraser
+{
+    width: 30px;
+    height: 30px;
+    background-color: #ccc;
+    margin: 0 2px; /* Add 5px horizontal margin between labels */
+    text-align: center; /* Center-align text within the labels */
+    line-height: 18px; /* Vertically center-align text within the labels */
+    cursor: pointer; /* Change cursor to a pointer on hover */
+        border: 0px;
+        border-radius: 5px;
+        background: rgb(59,166,8);
+        background: linear-gradient(90deg, rgba(59,166,8,1) 26%, rgba(97,181,85,1) 89%);
+        color: #002504;
+        font-family: Roboto;
+        font-size: 15px;
+        font-weight: 800;
+        vertical-align: middle;
+    border: 3px solid white;
+    margin-top: 3px;
+}
+
+.drawgeometry .drawfloor:hover,
+.drawgeometry .drawwall:hover,
+.drawgeometry .drawhole:hover,
+.drawgeometry .drawshutter:hover {
+    filter: brightness(200%) saturate(120%);
+    transition: filter 0.3s ease; /* Smooth transition for the hover effect */
+}
+
+@keyframes pulse {
+    0% {
+        border-color: rgb(113, 255, 94);
+    }
+    50% {
+        border-color: rgb(0, 0, 0);
+    }
+    100% {
+        border-color: rgb(113, 255, 94);
+    }
+}
+
+.drawgeometry .drawfloor{
+    background-image: url("images/floor.png");
+    background-repeat: no-repeat;
+    background-size: cover; /* You can use 'contain' if you want the image to fit entirely within the element */
+    background-position: center; /* Center the background image */
+
+}
+
+.drawgeometry .drawwall{
+    background-image: url("images/wall.png");
+    background-repeat: no-repeat;
+    background-size: cover; /* You can use 'contain' if you want the image to fit entirely within the element */
+    background-position: center; /* Center the background image */
+}
+.drawgeometry .drawhole{
+    background-image: url("images/holeTopLeft.png");
+    background-repeat: no-repeat;
+    background-size: cover; /* You can use 'contain' if you want the image to fit entirely within the element */
+    background-position: center; /* Center the background image */
+}
+.drawgeometry .drawshutter{
+    background-image: url("images/shutterTopLeft.png");
+    background-repeat: no-repeat;
+    background-size: cover; /* You can use 'contain' if you want the image to fit entirely within the element */
+    background-position: center; /* Center the background image */
+}
+.drawscore .addscore{
+    background-image: url("images/plus1.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawscore .add5score{
+    background-image: url("images/plus5.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawscore .subtractscore{
+    background-image: url("images/minus1.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawscore .subtract5score{
+    background-image: url("images/minus5.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawscore .zeroscore{
+    background-image: url("images/set0.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .gemGreen{
+    background-image: url("images/gemGreen.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .gemRed{
+    background-image: url("images/gemRed.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .gemBlue{
+    background-image: url("images/gemBlue.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .closeShutters{
+    background-image: url("images/closeShutters.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .rabbit{
+    background-image: url("images/rabbit.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .ghost{
+    background-image: url("images/ghost.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .hourglass{
+    background-image: url("images/hourglass.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .teleport1{
+    background-image: url("images/teleport1.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .teleport2{
+    background-image: url("images/teleport2.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .teleport3{
+    background-image: url("images/teleport3.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .teleport4{
+    background-image: url("images/teleport4.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .target1{
+    background-image: url("images/target1.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .target2{
+    background-image: url("images/target2.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .target3{
+    background-image: url("images/target3.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .target4{
+    background-image: url("images/target4.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .slow{
+    background-image: url("images/slow.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .eraser{
+    background-image: url("images/eraser.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawgeometry .tooltitle,
+.drawscore .tooltitle,
+.drawpickups .tooltitle{
+    font-family: Roboto;
+    font-size: 15px;
+    font-weight: 800;
+    vertical-align: middle;
+    width: 90px;
+    height: 30px;
+}
+/* Style labels as buttons on hover */
+.drawgeometry label:hover,
+.drawscore label:hover {
+    background-color: #ddd;
+}
+.toolboxtitle{
+    width: 130px;
+    height: 30px;
+    background-color: #ccc;
+    margin: 5px; /* Add 5px horizontal margin between labels */
+    padding: 3px 10px 3px 10px;
+    text-align: center; /* Center-align text within the labels */
+    line-height: 30px; /* Vertically center-align text within the labels */
+        border: 2px solid black;
+        border-radius: 5px;
+        background: rgb(59,166,8);
+        background: linear-gradient(90deg, rgba(59,166,8,1) 26%, rgba(97,181,85,1) 89%);
+        font-family: Roboto;
+        font-size: 20px;
+        font-weight: 800;
+}
+.drawgeometry .drawfloor.selected,
+.drawgeometry .drawwall.selected,
+.drawgeometry .drawhole.selected,
+.drawgeometry .drawshutter.selected,
+.drawscore .addscore.selected,
+.drawscore .add5score.selected,
+.drawscore .subtractscore.selected,
+.drawscore .subtract5score.selected,
+.drawscore .zeroscore.selected,
+.drawpickups .gemGreen.selected,
+.drawpickups .gemRed.selected,
+.drawpickups .gemBlue.selected,
+.drawpickups .closeShutters.selected,
+.drawpickups .rabbit.selected,
+.drawpickups .ghost.selected,
+.drawpickups .hourglass.selected,
+.drawpickups .slow.selected,
+.drawpickups .teleport1.selected,
+.drawpickups .teleport2.selected,
+.drawpickups .teleport3.selected,
+.drawpickups .teleport4.selected,
+.drawpickups .target1.selected,
+.drawpickups .target2.selected,
+.drawpickups .target3.selected,
+.drawpickups .target4.selected,
+.drawpickups .eraser.selected
+{
+    border: 3px solid transparent;
+    animation: pulse 1s linear infinite; 
+}
+
+
+  </style>
+</head>
+<body>
+    <div class="everything">
+        <div class="main-left">
+            <div class="logo-container">
+                <div class="logo"> </div>
+                <div class="logotext"></div>
+            </div>
+            <label class="prettyButton">
+                Open map (.lab)...
+                <input type="file" id="file-input" class="real-file-input" accept=".lab, .lvl">
+            </label>
+            <label class="prettyButton" id="recenter-button">Recenter Grid</label>
+            <label class="prettyButton" id="toggle-dots-button">Toggle Dots</label>
+            <label class="prettyButton" id="toggle-pickups-button">Toggle Pickups</label>
+            <label class="prettyButton" id="toggle-scores-button">Toggle Scores</label>
+            <label class="prettyButton" id="toggle-start-goal-button">Toggle Start/Goal</label>
+            <label class="prettyButton" id="save-map-button">Save Map...</label>
+            <div class="mapInfo">
+                <div class="mapInfoLine"><div class="mapInfoTitle">Map Size</div><div id="mapSize"> </div></div>
+                <div class="mapInfoLine"><div class="mapInfoTitle">Start</div><div id="startPoint"> </div></div>
+                <div class="mapInfoLine"><div class="mapInfoTitle">Goal</div><div id="goalPoint"> </div></div>
+                <div class="mapInfoLine"><div class="mapInfoTitle">Pickups</div><div id="pickups"> </div></div>
+                <div class="mapInfoLine"><div class="mapInfoTitle">Flag2</div><div id="flag2"> </div></div>
+                <div class="mapInfoLine"><div class="mapInfoTitle">Dots</div><div id="dots"> </div></div>
+                <div class="mapInfoLine"><div class="mapInfoTitle">Timer</div><div id="timer"> </div></div>
+            </div>
+            <div class="toolbox">
+                <label class="toolboxtitle">Toolbox</label>
+                <div class="drawgeometry">
+                    <label class="tooltitle">Geometry</label>
+                    <label class="drawfloor" data-tool="floor"> </label>
+                    <label class="drawwall" data-tool="wall"> </label>
+                    <label class="drawhole" data-tool="hole"> </label>
+                    <label class="drawshutter" data-tool="shutter"> </label>
+                </div>
+                <div class="drawscore">
+                    <label class="tooltitle">Score</label>
+                    <label class="addscore" data-tool="addscore"></label>
+                    <label class="add5score" data-tool="add5score"></label>
+                    <label class="subtractscore" data-tool="subtractscore"></label>
+                    <label class="subtract5score" data-tool="subtract5score"></label>
+                    <label class="zeroscore" data-tool="zeroscore"></label>
+                </div>
+                <div class="drawpickups">
+                    <label class="tooltitle">Pickups</label>
+                    <label class="gemGreen" data-tool="gemGreen"> </label>
+                    <label class="gemRed" data-tool="gemRed"> </label>
+                    <label class="gemBlue" data-tool="gemBlue"> </label>
+                    <label class="closeShutters" data-tool="closeShutters"> </label>
+                    <label class="tooltitle"> </label>
+                    <label class="rabbit" data-tool="rabbit"> </label>
+                    <label class="ghost" data-tool="ghost"> </label>
+                    <label class="hourglass" data-tool="hourglass"> </label>
+                    <label class="slow" data-tool="slow"> </label>
+                    <label class="tooltitle"> </label>
+                    <label class="teleport1" data-tool="teleport1"> </label>
+                    <label class="teleport2" data-tool="teleport2"> </label>
+                    <label class="teleport3" data-tool="teleport3"> </label>
+                    <label class="teleport4" data-tool="teleport4"> </label>
+                    <label class="tooltitle"> </label>
+                    <label class="target1" data-tool="target1"> </label>
+                    <label class="target2" data-tool="target2"> </label>
+                    <label class="target3" data-tool="target3"> </label>
+                    <label class="target4" data-tool="target4"> </label>
+                    <label class="tooltitle"> </label>
+                    <label class="eraser" data-tool="eraser"> </label>
+                </div>
+            </div>
+        </div>
+        <div class="main-right">
+            <div id="byte-output">[Mouse Wheel] zoom in and out
+                                <br>[hold RMB] pan the view</div>
+            <div class="panel-box" id="panel-box">
+                <div class="grid-container centered-grid" id="grid-container">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="renderer.js"></script>
+    <script src="files/FileSaver.js"></script>
+
+</body>
+</html>

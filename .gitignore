@@ -1,0 +1,35 @@
+# Node.js
+node_modules/
+
+# Logs
+logs
+*.log
+
+# Dependency directories
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Optional: OS-specific files
+.DS_Store
+Thumbs.db
+
+# Optional: Editor/IDE specific files
+.vscode/
+.idea/
+
+# Optional: Build and deployment directories
+build/
+dist/
+coverage/
+
+# Optional: Environment configuration files
+.env
+.env.local
+.env.*.local
+
+# Optional: Test directories and files
+__tests__/
+*.test.*
+*.spec.*

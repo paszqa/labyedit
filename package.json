@@ -1,0 +1,31 @@
+{
+  "name": "labyedit",
+  "version": "1.0.0",
+  "description": "LabyEdit - a map editor for Labyrinth Plus! game",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "author": "Paszq",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^16.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "build": {
+    "appId": "com.app.labyedit",
+    "productName": "LabyEdit",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "portable"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
+  }
+}
