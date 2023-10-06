@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let pickupsArrayX = new Array();
     let pickupsArrayY = new Array();
     let pickupsArrayType = new Array();
+    let currentTheme;
     let howManyDots = 0;
     let howManyCheckpoints = 0;
     let flags = 2;
@@ -60,6 +61,29 @@ document.addEventListener('DOMContentLoaded', () => {
         return outputValue;
     }
 
+    function ReadTheme(uint8Array){
+        let hexAddress = (parseInt("1C", 16));
+        console.log("UINT ARRAY:"+uint8Array.join(","));
+        //outputValue = uint8Array[1C + lvlOffset];
+        let decodedString = '';
+        for (let i = hexAddress; i < uint8Array.length; i++) {
+            // Read a byte from memory at the current address
+            const byte = uint8Array[i];
+        
+            // Break the loop if the byte is 0x00 (null-terminator), indicating the end of the string
+            if (byte === 0x00) {
+                break;
+            }
+        
+            // Convert the byte to a character and add it to the decoded string
+            decodedString += String.fromCharCode(byte);
+        }
+        console.log("Theme: "+decodedString);
+        currentTheme = decodedString;
+        console.log("CURRENT THEME 0 = "+currentTheme);
+        return currentTheme;
+
+    }
     function readBytesFromFile() {
         geometryArray.length = 0;
         dotsArrayX.length = 0;
@@ -71,13 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
         //Define HTML elements of general vars
         const fileInput = document.getElementById('file-input');
         const byteOutput = document.getElementById('byte-output');
-        const mapSizeOutput = document.getElementById('mapSize');
-        const startPointOutput = document.getElementById('startPoint');
-        const goalPointOutput = document.getElementById('goalPoint');
-        const pickupsOutput = document.getElementById('pickups');
-        const flag2Output = document.getElementById('flag2');
-        const dotsOutput = document.getElementById('dots');
-        const timerOutput = document.getElementById('timer');
         //console.log("STARTPOINT div "+startPointOutput);
         if (!fileInput.files.length) {
             alert('Please select a file first.');
@@ -114,6 +131,9 @@ document.addEventListener('DOMContentLoaded', () => {
             startY = ReadHexValue(uint8Array, "12", 2, 0, 0);
             goalX = ReadHexValue(uint8Array, "14", 2, 0, 0);
             goalY = ReadHexValue(uint8Array, "16", 2, 0, 0);
+            console.log("CURRENT THEME 1 = "+currentTheme);
+            currentTheme = ReadTheme(uint8Array);
+            console.log("CURRENT THEME 2 = "+currentTheme);
             timerValue = ReadHexValue(uint8Array, "21C", 2, 0, 0);
             console.log("...Reading basic values complete.");
             console.log("Map size X: "+mapSizeX+" Y: "+mapSizeY);
@@ -139,15 +159,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             console.log("...Reading flags complete.");
 
-            //---------------Print output
-            mapSizeOutput.innerText = mapSizeX + "," + mapSizeY;
-            startPointOutput.innerText = startX + "," + startY;
-            goalPointOutput.innerText = goalX + "," + goalY;
-            pickupsOutput.innerText = hasPickups;
-            flag2Output.innerText = flagTwo;
-            dotsOutput.innerText = hasDots;
-            timerOutput.innerText = timerValue;
-            console.log("...Printing basic values and flags complete.");
             
             //------------------Geometry--------------------------
             let numberOfCells = mapSizeX * mapSizeY;
@@ -157,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 valueHere += ReadHexValue(uint8Array, startOfGeometry, 1, 0, i * 4 + 1);
                 valueHere += ReadHexValue(uint8Array, startOfGeometry, 1, 0, i * 4 + 2);
                 valueHere += ReadHexValue(uint8Array, startOfGeometry, 1, 0, i * 4 + 3);
-                console.log("i = " + i + "; value = " + valueHere + " out of "+numberOfCells);
+                //console.log("i = " + i + "; value = " + valueHere + " out of "+numberOfCells);
                 geometryArray.push(valueHere); //Geometry start?)
             }
             console.log("...Reading geometry complete.");
@@ -209,17 +220,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 for (let i = 0; i < howManyPickups; i++) {
                     let valueHere = "" + ReadHexValue(uint8Array, realStartOfPickups, 2, 0, i * 8);
                     pickupsArrayX.push(valueHere);
-                    console.log("READING PICKUP i = " + i + "; value X = " + valueHere);
+                    //console.log("READING PICKUP i = " + i + "; value X = " + valueHere);
                     valueHere = "" + ReadHexValue(uint8Array, realStartOfPickups, 2, 0, i * 8 + 2);
                     pickupsArrayY.push(valueHere);
-                    console.log("READING PICKUP i = " + i + "; value Y = " + valueHere);
+                    //console.log("READING PICKUP i = " + i + "; value Y = " + valueHere);
                     valueHere = "" + ReadHexValue(uint8Array, realStartOfPickups, 1, 0, i * 8 + 4) 
                         + ReadHexValue(uint8Array, realStartOfPickups, 1, 0, i * 8 + 5)
                         + ReadHexValue(uint8Array, realStartOfPickups, 1, 0, i * 8 + 6)
                         + ReadHexValue(uint8Array, realStartOfPickups, 1, 0, i * 8 + 7);
                     pickupsArrayType.push(valueHere);
                     //valueHere += ReadHexValue(uint8Array, startOfDots, 1, 0, i*4 + 3);
-                    console.log("READING PICKUP i = " + i + "; value TYPE = " + valueHere);
+                    //console.log("READING PICKUP i = " + i + "; value TYPE = " + valueHere);
                     //console.log("type = " + valueHere + " (" + i + " out of " + howManyPickups + ")");
                     //dotsArrayX.push(valueHere); //Geometry start?)
                 }
@@ -229,6 +240,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 */
             }
+            //---------------Print output
+            refreshStats();
+            console.log("...Printing basic values and flags complete.");
+            //----------generate grid
             DeleteGrid();
             GenerateGrid(geometryArray, mapSizeX, mapSizeY);
             centerGrid();
@@ -249,6 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
     */
     const panelBox = document.getElementById('panel-box');
     const gridContainer = document.getElementById('grid-container');
+    const selectTheme = document.getElementById('selectTheme');
 
     let zoomLevel = 1; // Initial zoom level
     let isPanning = false; 
@@ -458,6 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     dotContainer.className = 'dotContainer';
                     dotContainer.appendChild(image);
                     smallCell.appendChild(dotContainer);
+                    console.log("Created dot @ "+dotX+","+dotY);
                 }
             } else {
                 if (smallCell) {
@@ -477,6 +494,9 @@ document.addEventListener('DOMContentLoaded', () => {
         for(let i = 0; i < pickupsArrayX.length; i++){
             if(pickupsArrayX[i] == dotX && pickupsArrayY[i] == dotY){
                 console.log("------------> Removing item: "+pickupsArrayType[i]+" from coords "+dotX+","+dotY);
+                pickupsArrayX.splice(i, 1);
+                pickupsArrayY.splice(i, 1);
+                pickupsArrayType.splice(i, 1);
                 howManyPickups -= 1;
                 if(howManyPickups == 0){
                     hasPickups = 0;
@@ -705,12 +725,12 @@ document.addEventListener('DOMContentLoaded', () => {
             scoreBox.className = "scoreBox";
             let scoreHere = checkpointsArray[i];
             scoreBox.innerText = scoreHere;
-            let colorString = "rgb(" + Math.min(255, 5 * scoreHere) + ", " + Math.max(0, 255 - 5 * scoreHere) + ", 0, 255)";
+            let colorString = "rgb(" + Math.min(255, 5 * scoreHere) + ", " + Math.max(0, 255 - 5 * scoreHere) + ", "+Math.min(Math.max((scoreHere * 5) - 255, 0), 255)+", 255)";
             if(scoreHere == 0){
                 colorString = "rgb(177,177,177)";
                 scoreBox.className = "scoreBox zero";
             }
-            console.log(colorString);
+            //console.log(colorString);
             scoreBox.style.color = colorString;
             cell.appendChild(scoreBox);
             cell.setAttribute('data-gridCellX', gridCellX);
@@ -831,11 +851,14 @@ document.addEventListener('DOMContentLoaded', () => {
         dataArray.push((goalX >> 8) & 0xFF);
         dataArray.push(goalY & 0xFF);
         dataArray.push((goalY >> 8) & 0xFF);
-        dataArray.push(flags & 0xFF);
-        dataArray.push((flags >> 8) & 0xFF);
+        flagsToInsert = 2;
+        if(hasPickups) flagsToInsert += 4;
+        if(hasDots) flagsToInsert += 1;
+        dataArray.push(flagsToInsert & 0xFF);
+        dataArray.push((flagsToInsert >> 8) & 0xFF);
         dataArray.push(0x00);
         dataArray.push(0x00);
-        const inputString = "Classic Wood";
+        const inputString = currentTheme;
         const utf8Encoder = new TextEncoder();
         const utf8Bytes = utf8Encoder.encode(inputString);
         dataArray.push(...utf8Bytes);
@@ -919,7 +942,7 @@ function selectTool(event) {
     const clickedButton = event.target;
     currentTool = clickedButton.getAttribute("data-tool");
     console.log("Selecting tool: " + currentTool + "...");
-    if(currentTool == "gemGreen" || currentTool == "gemRed" || currentTool == "gemBlue" || currentTool == "closeShutters" || currentTool == "rabbit" || currentTool == "ghost" || currentTool == "hourglass" || currentTool == "teleport1" || currentTool == "teleport2" || currentTool == "teleport3" || currentTool == "teleport4" || currentTool == "target1" || currentTool == "target2" || currentTool == "target3" || currentTool == "target4" || currentTool == "slow" || currentTool == "eraser"){
+    if(currentTool == "gemGreen" || currentTool == "gemRed" || currentTool == "gemBlue" || currentTool == "closeShutters" || currentTool == "rabbit" || currentTool == "ghost" || currentTool == "hourglass" || currentTool == "teleport1" || currentTool == "teleport2" || currentTool == "teleport3" || currentTool == "teleport4" || currentTool == "target1" || currentTool == "target2" || currentTool == "target3" || currentTool == "target4" || currentTool == "slow" || currentTool == "eraser" || currentTool == "dots" || currentTool == "dotseraser"){
         console.log("Selected pickup placing tool");
         drawingOnBigGrid = false;
         drawingOnSmallGrid = true;
@@ -934,6 +957,7 @@ function selectTool(event) {
         });
     }
     else{
+        console.log("will be using big grid");
         drawingOnBigGrid = true;
         drawingOnSmallGrid = false;
         const smallCells = document.querySelectorAll('.smallCell');
@@ -956,18 +980,12 @@ function selectTool(event) {
 }
 
 // Add a click event listener to the button for each tool
-const toolButtons = document.querySelectorAll('.drawwall, .drawfloor, .drawhole, .drawshutter, .addscore, .add5score, .subtractscore, .subtract5score, .zeroscore, .gemGreen, .gemRed, .gemBlue, .closeShutters, .rabbit, .ghost, .hourglass, .slow, .teleport1, .teleport2, .teleport3, .teleport4, .target1, .target2, .target3, .target4, .eraser');
+const toolButtons = document.querySelectorAll('.drawwall, .drawfloor, .drawhole, .drawshutter, .addscore, .add5score, .subtractscore, .subtract5score, .zeroscore, .gemGreen, .gemRed, .gemBlue, .closeShutters, .rabbit, .ghost, .hourglass, .slow, .teleport1, .teleport2, .teleport3, .teleport4, .target1, .target2, .target3, .target4, .eraser, .dots, .dotseraser, .placestart, .placegoal');
 toolButtons.forEach((thisButton) => {
     thisButton.addEventListener('click', selectTool);
 });
     //-----------------------END OF TOOLBOX-------------------------
 
-    // Function to execute when a grid cell is clicked
-    function handleGridCellClick(event) {
-        const gridCellID = event.currentTarget.getAttribute('data-gridCellID');
-        // Use gridCellID as an argument for your function
-        console.log(`Grid cell ${gridCellID} was clicked.`);
-    }
     function addClickingAction(){
         // Get all grid cells
         const gridCells = document.querySelectorAll('.grid-cell');
@@ -982,9 +1000,49 @@ toolButtons.forEach((thisButton) => {
 
     }
     
+
+    function placeStart(placeOnX, placeOnY, event){
+        const startElements = document.querySelectorAll('.startGoal[src="images/start.png"]');
+            startElements.forEach((startElement) => {
+                startElement.remove();
+            });
+        startX = placeOnX;
+        startY = placeOnY;
+        
+        const gridCell = document.querySelector(`.grid-cell[data-gridcellx="${startX}"][data-gridcelly="${startY}"]`);
+        if (gridCell) {
+            console.log("Placing start on "+startX+","+startY);
+            const startImage = document.createElement('img');
+            startImage.src = 'images/start.png';
+            startImage.className = 'startGoal';
+            gridCell.appendChild(startImage);
+        }
+        refreshStats();
+    }
+
+    function placeGoal(placeOnX, placeOnY, event){
+        const startElements = document.querySelectorAll('.startGoal[src="images/goal.png"]');
+            startElements.forEach((startElement) => {
+                startElement.remove();
+            });
+        goalX = placeOnX;
+        goalY = placeOnY;
+        
+        const gridCell = document.querySelector(`.grid-cell[data-gridcellx="${goalX}"][data-gridcelly="${goalY}"]`);
+        if (gridCell) {
+            console.log("Placing start on "+startX+","+startY);
+            const goalImage = document.createElement('img');
+            goalImage.src = 'images/goal.png';
+            goalImage.className = 'startGoal';
+            gridCell.appendChild(goalImage);
+        }
+        refreshStats();
+    }
     function placeGeometry(event){
         if(drawingOnBigGrid == true){
             const gridCellID = event.currentTarget.getAttribute('data-gridCellID');
+            const gridCellX = event.currentTarget.getAttribute('data-gridCellX');
+            const gridCellY = event.currentTarget.getAttribute('data-gridCellY');
             console.log("Drawing on Big grid = "+drawingOnBigGrid+" gridCellID: "+gridCellID);
             let cellIdInt = parseInt(gridCellID);
             topRightId= (cellIdInt+1);
@@ -995,8 +1053,17 @@ toolButtons.forEach((thisButton) => {
             let row3;
             let row4;
             let scoreBox = event.currentTarget.querySelector(".scoreBox");
+            let newScore;
             let anotherGridCell;
             switch(currentTool){
+                case "placestart":
+                    console.log("Trying to place Start @ "+gridCellX+","+gridCellY);
+                    placeStart(gridCellX,gridCellY, event);
+                    break;
+                case "placegoal":
+                    console.log("Trying to place Start @ "+gridCellX+","+gridCellY);
+                    placeGoal(gridCellX,gridCellY, event);
+                    break;
                 case "floor":
                     event.currentTarget.className = "grid-cell floor";
                     geometryArray[gridCellID] = "0000";
@@ -1065,14 +1132,14 @@ toolButtons.forEach((thisButton) => {
                     break;
                 case "addscore":
                     scoreBox = event.currentTarget.querySelector(".scoreBox");
-                    const newScore = Math.max((parseInt(scoreBox.innerText) + 1), 100);
+                    newScore = Math.min((parseInt(scoreBox.innerText) + 1), 100);
                     checkpointsArray[cellIdInt] = newScore;
                     scoreBox.innerText = newScore.toString();
                     refreshScoreColors(scoreBox);
                     break;
                 case "add5score":
                     scoreBox = event.currentTarget.querySelector(".scoreBox");
-                    newScore = Math.max((parseInt(scoreBox.innerText) + 5), 100);
+                    newScore = Math.min((parseInt(scoreBox.innerText) + 5), 100);
                     checkpointsArray[cellIdInt] = newScore;
                     scoreBox.innerText = newScore.toString();
                     refreshScoreColors(scoreBox);
@@ -1111,12 +1178,20 @@ toolButtons.forEach((thisButton) => {
             const placeOnX = parseInt(parseInt(bigCellX * 10) + parseInt(smallCellX));
             const placeOnY = parseInt(parseInt(bigCellY * 10) + parseInt(smallCellY));
             console.log("Small cell coords: "+(bigCellX * 10 + smallCellX)+" , "+(bigCellY * 10 + smallCellY));
-            if(currentTool != "eraser"){
-                placePickup(currentTool, placeOnX, placeOnY);
+            if(currentTool == "dots"){
+                console.log("Trying to add dot @ "+placeOnX+","+placeOnY);
+                placeDot(placeOnX, placeOnY);
             }
-            else{
+            else if(currentTool == "dotseraser"){
+                console.log("Trying to erase  dots @ "+placeOnX+","+placeOnY);
+                removeDot(placeOnX, placeOnY);
+            }
+            else if(currentTool == "eraser"){
                 console.log("======> Trying to remove item with eraser.");
                 removeItem(placeOnX, placeOnY);
+            }
+            else{
+                placePickup(currentTool, placeOnX, placeOnY);
             }
             /*
             switch(currentTool){
@@ -1129,13 +1204,14 @@ toolButtons.forEach((thisButton) => {
             }
             */
         }
+        refreshStats();
     }
     function refreshScoreColors(thisScoreBox){
         //const scoreBox = scoreBox.querySelectorAll('.scoreBox');
         //scoreBoxes.forEach((cell) => {
             const scoreInside = thisScoreBox.innerText;
             thisScoreBox.innerText = scoreInside;
-            let colorString = "rgb(" + Math.min(255, 5 * scoreInside) + ", " + Math.max(0, 255 - 5 * scoreInside) + ", 0, 255)";
+            let colorString = "rgb(" + Math.min(255, 5 * scoreInside) + ", " + Math.max(0, 255 - 5 * scoreInside) + ", "+Math.min(Math.max((scoreInside * 10) - 255, 0), 255)+", 255)";
             if(scoreInside == 0){
                 colorString = "rgb(177,177,177)";
                 thisScoreBox.className = "scoreBox zero";
@@ -1144,7 +1220,7 @@ toolButtons.forEach((thisButton) => {
                 thisScoreBox.className = "scoreBox";
             }
             thisScoreBox.style.color = colorString;
-
+            refreshStats();
         //});
     }
     function placePickup(whichPickup, placeOnX, placeOnY){
@@ -1204,6 +1280,7 @@ toolButtons.forEach((thisButton) => {
             howManyPickups += 1;
             hasPickups = true;
             CreateItem(placeOnX, placeOnY, whichPickup);
+            refreshStats();
             console.log("Place Pickup OK - placed "+whichPickup+" at "+placeOnX+","+placeOnY);
             console.log("Pickups array: "+pickupsArrayType.join());
         }
@@ -1211,4 +1288,359 @@ toolButtons.forEach((thisButton) => {
             console.log("Place Pickup error - arrays not equal");
         }
     }
+    function placeDot(dotX, dotY){
+        dotsArrayX.push(dotX);
+        dotsArrayY.push(dotY);
+        howManyDots += 1;
+        hasDots = true;
+        CreateItem(dotX, dotY, "dot2");
+        refreshStats();
+    }
+
+    function removeDot(dotX, dotY){
+        console.log("function to remove dots");
+        //remove from array
+        for(let i = 0; i < dotsArrayX.length; i++){
+            if(dotsArrayX[i] == dotX && dotsArrayY[i] == dotY){
+                dotsArrayX.splice(i, 1);
+                dotsArrayY.splice(i, 1);
+                console.log("------------> Removing dot from coords "+dotX+","+dotY);
+                howManyDots -= 1;
+                if(howManyDots <= 0){
+                    hasDots = false;
+                    howManyDots = 0;
+                }
+            }
+        }
+        
+        const gridCellX = (dotX - (dotX % 10)) / 10;
+        const gridCellY = (dotY - (dotY % 10)) / 10;
+        const smallCellX = dotX % 10;
+        const smallCellY = dotY % 10;
+        console.log("Trying to remove visual DOT from the map. GridCell X "+gridCellX+" Y "+gridCellY+" smallCell X "+smallCellX+" Y "+smallCellY);
+        //remove from visual map
+        const gridCell = document.querySelector(`.grid-cell[data-gridcellx="${gridCellX}"][data-gridcelly="${gridCellY}"]`);
+        if (gridCell) {
+            console.log("===> Found big cell where element should be removed.");
+            // Step 2: Within the .grid-cell element, find the .smallCell element with specific data attributes
+            const smallCell = gridCell.querySelector(`.smallCell[data-smallcellx="${smallCellX}"][data-smallcelly="${smallCellY}"]`);
+          
+            if (smallCell) {
+                console.log("===> Found small cell where element should be removed.");
+              // Step 3: Within the .smallCell element, remove all div elements with the class .pickupContainer
+              const dotContainers = smallCell.querySelectorAll('.dotContainer');
+              dotContainers.forEach((dotContainer) => {
+                dotContainer.remove();
+              });
+            }
+        }
+        refreshStats();
+    }
+
+    function refreshStats(){
+        console.log("Refreshing stats.");
+        console.log("CURRENT THEME 3 = "+currentTheme);
+        const mapSizeOutput = document.getElementById('mapSize');
+        const startPointOutput = document.getElementById('startPoint');
+        const goalPointOutput = document.getElementById('goalPoint');
+        const pickupsOutput = document.getElementById('pickups');
+        const flag2Output = document.getElementById('flag2');
+        const dotsOutput = document.getElementById('dots');
+        const timerOutput = document.getElementById('timer');
+        const themeOutput = document.getElementById('mapInfoTheme');
+        const gemGreenOutput = document.getElementById('mapInfoGemGreen');
+        const gemRedOutput = document.getElementById('mapInfoGemRed');
+        const gemBlueOutput = document.getElementById('mapInfoGemBlue');
+        const closeShuttersOutput = document.getElementById('mapInfoCloseShutters');
+        const rabbitOutput = document.getElementById('mapInfoRabbits');
+        const teleportsOutput = document.getElementById('mapInfoTeleports');
+        const slowsOutput = document.getElementById('mapInfoSlows');
+        const ghostsOutput = document.getElementById('mapInfoGhosts');
+        const hourglassesOutput = document.getElementById('mapInfoHourglasses');
+        const wallsOutput = document.getElementById('mapInfoWalls');
+        const holesOutput = document.getElementById('mapInfoHoles');
+        const shuttersOutput = document.getElementById('mapInfoShutters');
+        
+        mapSizeOutput.innerText = mapSizeX + "," + mapSizeY;
+        startPointOutput.innerText = startX + "," + startY;
+        goalPointOutput.innerText = goalX + "," + goalY;
+        pickupsOutput.innerText = hasPickups;
+        flag2Output.innerText = flagTwo;
+        dotsOutput.innerText = hasDots;
+        timerOutput.innerText = timerValue;
+        themeOutput.innerText = currentTheme;
+        gemGreenOutput.innerText = getCount("gemGreen");
+        gemRedOutput.innerText = getCount("gemRed");
+        gemBlueOutput.innerText = getCount("gemBlue");
+        closeShuttersOutput.innerText = getCount("closeShutters");
+        rabbitOutput.innerText = getCount("rabbit");
+        teleportsOutput.innerText = getCount("teles");
+        slowsOutput.innerText = getCount("slow");
+        ghostsOutput.innerText = getCount("ghost");
+        hourglassesOutput.innerText = getCount("hourglass");
+        wallsOutput.innerText = getCount("wall");
+        holesOutput.innerText = getCount("hole");
+        shuttersOutput.innerText = getCount("shutter");
+        fixWalls();
+    }
+
+    selectTheme.addEventListener('change', function () {
+        const selectedValue = selectTheme.value;
+        // Call your function here, passing the selectedValue as an argument.
+        changeTheme(selectedValue);
+    });
+
+    function changeTheme(selectedValue){
+        console.log("selected theme: "+selectedValue);
+        currentTheme = selectedValue;
+        refreshStats();
+    }
+
+    function getCount(whatToCount){
+        let value = 0;
+        switch(whatToCount){
+            case "gemGreen":
+                value = getCountInArray("0000", pickupsArrayType);
+                break;
+            case "gemRed":
+                value = getCountInArray("1000", pickupsArrayType);
+                break;
+            case "gemBlue":
+                value = getCountInArray("2000", pickupsArrayType);
+                break;
+            case "closeShutters":
+                value = getCountInArray("3000", pickupsArrayType);
+                break;
+            case "rabbit":
+                value = getCountInArray("4000", pickupsArrayType);
+                break;
+            case "ghost":
+                value = getCountInArray("5000", pickupsArrayType);
+                break;
+            case "hourglass":
+                value = getCountInArray("6000", pickupsArrayType);
+                break;
+            case "teles":
+                value = getCountInArray("7000", pickupsArrayType);
+                value += getCountInArray("7010", pickupsArrayType);
+                value += getCountInArray("7020", pickupsArrayType);
+                value += getCountInArray("7030", pickupsArrayType);
+                break;
+            case "slow":
+                value = getCountInArray("8000", pickupsArrayType);
+                break;
+            case "hole":
+                value = getCountInArray("7000", geometryArray) * 0.25;
+                value += getCountInArray("7100", geometryArray) * 0.25;
+                value += getCountInArray("7200", geometryArray) * 0.25;
+                value += getCountInArray("7300", geometryArray) * 0.25;
+                break;
+            case "shutter":
+                value = getCountInArray("7001", geometryArray) * 0.25;
+                value += getCountInArray("7101", geometryArray) * 0.25;
+                value += getCountInArray("7201", geometryArray) * 0.25;
+                value += getCountInArray("7301", geometryArray) * 0.25;
+                break;
+            case "wall":
+                value = getCountInArray("5000", geometryArray);
+                value += getCountInArray("5100", geometryArray);
+                value += getCountInArray("5200", geometryArray);
+                value += getCountInArray("5300", geometryArray);
+                value += getCountInArray("6000", geometryArray);
+                value += getCountInArray("4000", geometryArray);
+                value += getCountInArray("4100", geometryArray);
+                value += getCountInArray("4200", geometryArray);
+                value += getCountInArray("4300", geometryArray);
+                value += getCountInArray("5555", geometryArray);
+                value += getCountInArray("1000", geometryArray);
+                value += getCountInArray("1010", geometryArray);
+                value += getCountInArray("1020", geometryArray);
+                value += getCountInArray("1030", geometryArray);
+                value += getCountInArray("3000", geometryArray);
+                value += getCountInArray("3100", geometryArray);
+                value += getCountInArray("3200", geometryArray);
+                value += getCountInArray("3300", geometryArray);
+                break;
+        }
+        return value;
+    }
+
+    function getCountInArray(value, array){
+        //console.log("Counting "+value+" entries in array: "+array);
+        let count = 0;
+        for(let i = 0; i < array.length; i++){
+            if(array[i] == value){
+                count += 1;
+            }
+        }
+        //console.log("Returning Count: "+count);
+        return count;
+    }
+
+    function fixWalls(){
+        for(let i = 0; i < geometryArray.length; i++){
+            if(!checkIfCellIdIsWall(i)) continue; //skip loop if cell isn't a wall
+            const gridCellX = i % mapSizeX;
+            const gridCellY = Math.floor(i / mapSizeX);
+            //CHECK RIGHT SIDE
+            let wallToRight;
+            if(gridCellX == (mapSizeX - 1)){
+                //it's on the right edge
+                wallToRight = false;
+            }
+            else{
+                wallToRight = checkIfCellIdIsWall(i + 1);
+            }
+            //CHECK LEFT SIDE
+            let wallToLeft;
+            if(gridCellX == 0){
+                //it's on the left edge
+                wallToLeft = false;
+            }
+            else{
+                wallToLeft = checkIfCellIdIsWall(i - 1);
+            }
+            //CHECK ABOVE
+            let wallAbove;
+            if(gridCellY == 0){
+                //it's on the top edge
+                wallAbove = false;
+            }
+            else{
+                wallAbove = checkIfCellIdIsWall(i - mapSizeX);
+            }
+            //CHECK BELOW
+            let wallBelow;
+            if(gridCellY == (mapSizeY -1)){
+                //it's on the bottom edge
+                wallBelow = false;
+            }
+            else{
+                wallBelow = checkIfCellIdIsWall(i + mapSizeX);
+            }
+            let howManyWallsAround = 0;
+            if(wallAbove) howManyWallsAround += 1;
+            if(wallBelow) howManyWallsAround += 1;
+            if(wallToLeft) howManyWallsAround += 1;
+            if(wallToRight) howManyWallsAround += 1;
+
+            console.log("i: "+i+" => "+wallAbove+" "+wallBelow+" "+wallToLeft+" "+wallToRight+" wallsAround: "+howManyWallsAround);
+            switch(howManyWallsAround){
+                case 0:
+                    geometryArray[i] = "6000";
+                    break;
+                case 1:
+                    if(wallAbove) geometryArray[i] = "4000";
+                    else if(wallBelow) geometryArray[i] = "4200";
+                    else if(wallToLeft) geometryArray[i] = "4300";
+                    else if(wallToRight) geometryArray[i] = "4100";
+                    break;
+                case 2:
+                    if(wallAbove && wallBelow) geometryArray[i] = "1000";
+                    else if(wallAbove && wallToLeft) geometryArray[i] = "5300";
+                    else if(wallToRight && wallToLeft) geometryArray[i] = "1100";
+                    else if(wallToRight && wallAbove) geometryArray[i] = "5000";
+                    else if(wallBelow && wallToRight) geometryArray[i] = "5100";
+                    else if(wallToLeft && wallBelow) geometryArray[i] = "5200";
+                    break;
+                case 3:
+                    if(!wallAbove) geometryArray[i] = "3100";
+                    else if(!wallBelow) geometryArray[i] = "3300";
+                    else if(!wallToLeft) geometryArray[i] = "3000";
+                    else if(!wallToRight) geometryArray[i] = "3200";
+                    break;
+                case 4:
+                    geometryArray[i] = "2000";
+                    break;
+            }
+        }
+    }
+
+    function checkIfCellIdIsWall(cellId){
+        //cellId = locX + locY * mapSizeX;
+        if(cellId < 0){
+            console.log(cellId+ "is NOT a wall (below 0)");
+            return false;
+        }
+        if(cellId >= geometryArray.length){
+            console.log(cellId+ "is NOT a wall (larger than length)");
+            return false;
+        }
+        switch(geometryArray[cellId]){
+            case "5000":
+            case "5100":
+            case "5200":
+            case "5300":
+            case "6000":
+            case "4000":
+            case "4100":
+            case "4200":
+            case "4300":
+            case "5555":
+            case "1000":
+            case "1020":
+            case "1030":
+            case "1100":
+            case "1120":
+            case "1130":
+            case "2000":
+            case "3000":
+            case "3100":
+            case "3200":
+            case "3300":
+                console.log(cellId+ "is a wall");
+                return true;
+            default:
+                console.log(cellId+ "is NOT a wall");
+                return false;
+        }
+    }
+
+    function newMap(mapX, mapY){
+        console.log("Started generating a new map...");
+        let newMapArray = new Array();
+        let newCheckpointsArray = new Array();
+        mapSizeX = mapX;
+        mapSizeY = mapY;
+        for(let i = 0; i < mapY; i++){//columns
+            for(let j = 0; j < mapX; j++){//rows
+                if(j == 0 || j == (mapX - 1) || i == 0 || i == (mapY - 1)){
+                    newMapArray.push("1000"); //edges of map = wall
+                }
+                else{
+                    newMapArray.push("0000"); //non-edges of map = floor
+                }
+                newCheckpointsArray.push(0);
+            }
+        }
+        startX = 1;
+        startY = 1;
+        goalX = 3;
+        goalY = 1;
+        geometryArray = newMapArray;
+        checkpointsArray = newCheckpointsArray;
+        howManyCheckpoints = newCheckpointsArray.length;
+        GenerateGrid(geometryArray, mapSizeX, mapSizeY);
+        centerGrid();
+        fixWalls();
+    }
+    // Add a click event listener to the button
+    /*
+    const newMapButton = document.getElementById('new-map-button');
+    newMapButton.addEventListener('click', newMap(24,24));
+    */
+
+    // Set up a click event listener for the "Recenter Grid" button
+    const newMapButton = document.getElementById('new-map-button');
+    newMapButton.addEventListener('click', () => {
+        newMap(24,24); // Recenter the grid and reset the zoom when the button is clicked
+    });
+    
+    
 });
+//TODO:
+//start, goal
+//stats/
+//wall generate fix 
+//stats refresh
+//

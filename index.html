@@ -231,7 +231,7 @@
         height: 100px;
         width: 100%;
         margin-top: 20px;
-        margin-bottom: 40px;
+        margin-bottom: 15px;
     }
     .logo{
         width: 100px;
@@ -251,7 +251,7 @@
         display: inline-block;
         margin: auto;
         margin-top: 5px;
-        width: 80%;
+        width: 48%;
         height: 25px;
         border: 0px;
         border-radius: 5px;
@@ -275,17 +275,43 @@
         font-size: 14px;
         font-weight: 800;
         line-height: 18px;
-        display: inline-block;
+        display: flex;
+        flex-wrap: wrap;
         width: 300px;
     }
+    .mapInfoGroup {
+        flex: 1;
+        max-width: 50%;
+        box-sizing: border-box;
+        padding: 0 3px;
+    }
     .mapInfoLine{
+        height: 20px;
         display: flex;
-        width: 100%;
+        align-items: center;
+    }
+    .mapInfoLine div{
+        width: 60px;
     }
     .mapInfoTitle{
-        width: 150px;
+        width: 70px;
         text-align: right;
-        margin-right: 10px;
+        margin-right: 5px;
+        flex-shrink: 0; /* Prevent title from shrinking */
+    }
+    .mapInfoLineSmall{
+        height: 20px;
+        display: flex;
+        align-items: center;
+    }
+    .mapInfoLineSmall div{
+        width: 35px;
+    }
+    .mapInfoTitleSmall{
+        width: 35px;
+        text-align: right;
+        margin-right: 5px;
+        flex-shrink: 0; /* Prevent title from shrinking */
     }
     .mapSize{
         flex: 1;
@@ -458,7 +484,11 @@
 .drawpickups .target2,
 .drawpickups .target3,
 .drawpickups .target4,
-.drawpickups .eraser
+.drawpickups .eraser,
+.drawpickups .dots,
+.drawpickups .dotseraser,
+.drawpickups .placestart,
+.drawpickups .placegoal
 {
     width: 30px;
     height: 30px;
@@ -483,7 +513,33 @@
 .drawgeometry .drawfloor:hover,
 .drawgeometry .drawwall:hover,
 .drawgeometry .drawhole:hover,
-.drawgeometry .drawshutter:hover {
+.drawgeometry .drawshutter:hover,
+.drawscore .addscore:hover,
+.drawscore .subtractscore:hover,
+.drawscore .add5score:hover,
+.drawscore .subtract5score:hover,
+.drawscore .zeroscore:hover,
+.drawpickups .gemGreen:hover, 
+.drawpickups .gemRed:hover, 
+.drawpickups .gemBlue:hover, 
+.drawpickups .closeShutters:hover, 
+.drawpickups .rabbit:hover,
+.drawpickups .ghost:hover,
+.drawpickups .hourglass:hover,
+.drawpickups .slow:hover,
+.drawpickups .teleport1:hover,
+.drawpickups .teleport2:hover,
+.drawpickups .teleport3:hover,
+.drawpickups .teleport4:hover,
+.drawpickups .target1:hover,
+.drawpickups .target2:hover,
+.drawpickups .target3:hover,
+.drawpickups .target4:hover,
+.drawpickups .eraser:hover,
+.drawpickups .dots:hover,
+.drawpickups .dotseraser:hover,
+.drawpickups .placestart:hover,
+.drawpickups .placegoal:hover {
     filter: brightness(200%) saturate(120%);
     transition: filter 0.3s ease; /* Smooth transition for the hover effect */
 }
@@ -658,6 +714,30 @@
     background-size: cover;
     background-position: center;
 }
+.drawpickups .dots{
+    background-image: url("images/dots.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .dotseraser{
+    background-image: url("images/dotseraser.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .placestart{
+    background-image: url("images/start.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawpickups .placegoal{
+    background-image: url("images/goal.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
 .drawgeometry .tooltitle,
 .drawscore .tooltitle,
 .drawpickups .tooltitle{
@@ -730,6 +810,7 @@
                 <div class="logo"> </div>
                 <div class="logotext"></div>
             </div>
+            <label class="prettyButton" id="new-map-button">New map 24x24</label>
             <label class="prettyButton">
                 Open map (.lab)...
                 <input type="file" id="file-input" class="real-file-input" accept=".lab, .lvl">
@@ -740,6 +821,7 @@
             <label class="prettyButton" id="toggle-scores-button">Toggle Scores</label>
             <label class="prettyButton" id="toggle-start-goal-button">Toggle Start/Goal</label>
             <label class="prettyButton" id="save-map-button">Save Map...</label>
+            <!---
             <div class="mapInfo">
                 <div class="mapInfoLine"><div class="mapInfoTitle">Map Size</div><div id="mapSize"> </div></div>
                 <div class="mapInfoLine"><div class="mapInfoTitle">Start</div><div id="startPoint"> </div></div>
@@ -749,6 +831,110 @@
                 <div class="mapInfoLine"><div class="mapInfoTitle">Dots</div><div id="dots"> </div></div>
                 <div class="mapInfoLine"><div class="mapInfoTitle">Timer</div><div id="timer"> </div></div>
             </div>
+            --->
+            <div class="mapInfo">
+                <div class="mapInfoGroup">
+                    <div class="mapInfoLine">
+                        <div class="mapInfoTitle">Map Size</div>
+                        <div id="mapSize"> </div>
+                    </div>
+                    <div class="mapInfoLine">
+                        <div class="mapInfoTitle">Start</div>
+                        <div id="startPoint"> </div>
+                    </div>
+                </div>
+                <div class="mapInfoGroup">
+                    <div class="mapInfoLine">
+                        <div class="mapInfoTitle">Goal</div>
+                        <div id="goalPoint"> </div>
+                    </div>
+                    <div class="mapInfoLine">
+                        <div class="mapInfoTitle">Pickups</div>
+                        <div id="pickups"> </div>
+                    </div>
+                </div>
+                <div class="mapInfoGroup">
+                    <div class="mapInfoLine">
+                        <div class="mapInfoTitle">Flag2</div>
+                        <div id="flag2"> </div>
+                    </div>
+                    <div class="mapInfoLine">
+                        <div class="mapInfoTitle">Dots</div>
+                        <div id="dots"> </div>
+                    </div>
+                </div>
+                <div class="mapInfoGroup">
+                    <div class="mapInfoLine">
+                        <div class="mapInfoTitle">Timer</div>
+                        <div id="timer"> </div>
+                    </div>
+                    <div class="mapInfoLine">
+                        <div class="mapInfoTitle">Theme</div>
+                        <div id="mapInfoTheme"> </div>
+                    </div>
+                </div>
+                <div class="mapInfoGroup">
+                    <div class="mapInfoLineSmall">
+                        <div class="mapInfoTitleSmall"><img src="images/gemGreen.png"></div>
+                        <div id="mapInfoGemGreen">--</div>
+                    </div>
+                    <div class="mapInfoLineSmall">
+                        <div class="mapInfoTitleSmall"><img src="images/gemRed.png"></div>
+                        <div id="mapInfoGemRed">--</div>
+                    </div>
+                </div>
+                <div class="mapInfoGroup">
+                    <div class="mapInfoLineSmall">
+                        <div class="mapInfoTitleSmall"><img src="images/gemBlue.png"></div>
+                        <div id="mapInfoGemBlue">--</div>
+                    </div>
+                    <div class="mapInfoLineSmall">
+                        <div class="mapInfoTitleSmall"><img src="images/teleportIcon.png"></div>
+                        <div id="mapInfoTeleports">--</div>
+                    </div>
+                </div>
+                <div class="mapInfoGroup">
+                    <div class="mapInfoLineSmall">
+                        <div class="mapInfoTitleSmall"><img src="images/rabbit.png"></div>
+                        <div id="mapInfoRabbits">--</div>
+                    </div>
+                    <div class="mapInfoLineSmall">
+                        <div class="mapInfoTitleSmall"><img src="images/slow.png"></div>
+                        <div id="mapInfoSlows">--</div>
+                    </div>
+                </div>
+                <div class="mapInfoGroup">
+                    <div class="mapInfoLineSmall">
+                        <div class="mapInfoTitleSmall"><img src="images/ghost.png"></div>
+                        <div id="mapInfoGhosts">--</div>
+                    </div>
+                    <div class="mapInfoLineSmall">
+                        <div class="mapInfoTitleSmall"><img src="images/hourglass.png"></div>
+                        <div id="mapInfoHourglasses">--</div>
+                    </div>
+                </div>
+                <div class="mapInfoGroup">
+                    <div class="mapInfoLineSmall">
+                        <div class="mapInfoTitleSmall"><img src="images/closeShutters.png"></div>
+                        <div id="mapInfoCloseShutters">--</div>
+                    </div>
+                    <div class="mapInfoLineSmall">
+                        <div class="mapInfoTitleSmall"><img src="images/holeIcon.png"></div>
+                        <div id="mapInfoHoles">--</div>
+                    </div>
+                </div>
+                <div class="mapInfoGroup">
+                    <div class="mapInfoLineSmall">
+                        <div class="mapInfoTitleSmall"><img src="images/shutterIcon.png" width="16" height="16"></div>
+                        <div id="mapInfoShutters">--</div>
+                    </div>
+                    <div class="mapInfoLineSmall">
+                        <div class="mapInfoTitleSmall"><img src="images/wall.png" width="16" height="16"></div>
+                        <div id="mapInfoWalls">--</div>
+                    </div>
+                </div>
+            </div>
+            
             <div class="toolbox">
                 <label class="toolboxtitle">Toolbox</label>
                 <div class="drawgeometry">
@@ -767,7 +953,7 @@
                     <label class="zeroscore" data-tool="zeroscore"></label>
                 </div>
                 <div class="drawpickups">
-                    <label class="tooltitle">Pickups</label>
+                    <label class="tooltitle">Stuff</label>
                     <label class="gemGreen" data-tool="gemGreen"> </label>
                     <label class="gemRed" data-tool="gemRed"> </label>
                     <label class="gemBlue" data-tool="gemBlue"> </label>
@@ -789,6 +975,32 @@
                     <label class="target4" data-tool="target4"> </label>
                     <label class="tooltitle"> </label>
                     <label class="eraser" data-tool="eraser"> </label>
+                    <label class="dots" data-tool="dots"> </label>
+                    <label class="dotseraser" data-tool="dotseraser"> </label>
+                    <label class="tooltitle"> </label>
+                    <label class="placestart" data-tool="placestart"> </label>
+                    <label class="placegoal" data-tool="placegoal"> </label>
+                    <label class="tooltitle"> </label>
+                    <label class="tooltitle">Select theme</label>
+                    <select id="selectTheme">
+                        <option value="Billiard">Billiard</option>
+                        <option value="Brick">Brick</option>
+                        <option value="Castle">Castle</option>
+                        <option value="Cheese">Cheese</option>
+                        <option value="Classic Wood">Classic Wood</option>
+                        <option value="Cone">Cone</option>
+                        <option value="Demon">Demon (Unofficial patch)</option>
+                        <option value="Electronic">Electronic</option>
+                        <option value="Hedge">Hedge</option>
+                        <option value="House">House</option>
+                        <option value="Ice">Ice</option>
+                        <option value="Marble">Marble</option>
+                        <option value="Metal">Metal</option>
+                        <option value="Pipes">Pipes</option>
+                        <option value="Plus!">Plus!</option>
+                        <option value="Space">Space (Unofficial patch)</option>
+                        <option value="Spikes">Spikes</option>
+                    </select>
                 </div>
             </div>
         </div>
