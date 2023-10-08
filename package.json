@@ -19,13 +19,20 @@
       "output": "dist"
     },
     "win": {
-      "target": "portable"
+      "icon": "images/labyedit.ico",
+      "target": "portable",
+      "artifactName": "LabyEdit-setup-1.0.${ext}"
     },
     "mac": {
       "target": "dmg"
     },
     "linux": {
       "target": "AppImage"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true 
     }
   }
 }

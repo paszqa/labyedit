@@ -5,8 +5,9 @@ let mainWindow;
 
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1300,
+    height: 1000,
+    autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: false, // Disable nodeIntegration
       contextIsolation: true, // Enable contextIsolation

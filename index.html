@@ -20,7 +20,7 @@
       border: 0px solid black;
       margin: 0px;
       padding: 0;
-      width: 300px;
+      width: 350px;
       height: 100%;
       text-align: center;
       flex-shrink: 0; /* Prevent main-left from shrinking */
@@ -228,24 +228,24 @@
     }
     .logo-container{
         display: flex;
-        height: 100px;
+        height: 140px;
         width: 100%;
-        margin-top: 20px;
+        margin-top: 5px;
         margin-bottom: 15px;
     }
     .logo{
-        width: 100px;
+        width: 115px;
         height: 100%;
         background-image: url("images/logo2.png");
         background-repeat: no-repeat;
         background-size: 100px 100px;
     }
     .logotext{
-        width: 200px;
+        width: 225px;
         height: 100%;
         background-image: url("images/logoLabyEdit.png");
         background-repeat: no-repeat;
-        background-size: 200px 100px;
+        background-size: 225px 130px;
     }
     .prettyButton{
         display: inline-block;
@@ -270,6 +270,7 @@
         background: linear-gradient(90deg, rgba(136,218,97,1) 26%, rgba(176,236,167,1) 89%);
     }
     .mapInfo{
+        margin: auto;
         margin-top: 10px;
         font-family: Roboto;
         font-size: 14px;
@@ -418,6 +419,7 @@
     }
     .toolbox {
     width: 300px;
+    margin: auto;
     text-align: center; /* Center-align text within the toolbox */
 }
 
@@ -794,7 +796,11 @@
 .drawpickups .target2.selected,
 .drawpickups .target3.selected,
 .drawpickups .target4.selected,
-.drawpickups .eraser.selected
+.drawpickups .eraser.selected,
+.drawpickups .dots.selected,
+.drawpickups .dotseraser.selected,
+.drawpickups .placestart.selected,
+.drawpickups .placegoal.selected
 {
     border: 3px solid transparent;
     animation: pulse 1s linear infinite; 
