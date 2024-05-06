@@ -980,7 +980,7 @@ function selectTool(event) {
 }
 
 // Add a click event listener to the button for each tool
-const toolButtons = document.querySelectorAll('.drawwall, .drawfloor, .drawhole, .drawshutter, .addscore, .add5score, .subtractscore, .subtract5score, .zeroscore, .gemGreen, .gemRed, .gemBlue, .closeShutters, .rabbit, .ghost, .hourglass, .slow, .teleport1, .teleport2, .teleport3, .teleport4, .target1, .target2, .target3, .target4, .eraser, .dots, .dotseraser, .placestart, .placegoal');
+const toolButtons = document.querySelectorAll('.drawwall, .drawfloor, .drawhole, .drawshutter, .addscore, .add5score, .add10score, .add25score, .subtractscore, .subtract5score, .zeroscore, .gemGreen, .gemRed, .gemBlue, .closeShutters, .rabbit, .ghost, .hourglass, .slow, .teleport1, .teleport2, .teleport3, .teleport4, .target1, .target2, .target3, .target4, .eraser, .dots, .dotseraser, .placestart, .placegoal');
 toolButtons.forEach((thisButton) => {
     thisButton.addEventListener('click', selectTool);
 });
@@ -1140,6 +1140,20 @@ toolButtons.forEach((thisButton) => {
                 case "add5score":
                     scoreBox = event.currentTarget.querySelector(".scoreBox");
                     newScore = Math.min((parseInt(scoreBox.innerText) + 5), 100);
+                    checkpointsArray[cellIdInt] = newScore;
+                    scoreBox.innerText = newScore.toString();
+                    refreshScoreColors(scoreBox);
+                    break;
+                case "add10score":
+                    scoreBox = event.currentTarget.querySelector(".scoreBox");
+                    newScore = Math.min((parseInt(scoreBox.innerText) + 10), 100);
+                    checkpointsArray[cellIdInt] = newScore;
+                    scoreBox.innerText = newScore.toString();
+                    refreshScoreColors(scoreBox);
+                    break;
+                case "add25score":
+                    scoreBox = event.currentTarget.querySelector(".scoreBox");
+                    newScore = Math.min((parseInt(scoreBox.innerText) + 25), 100);
                     checkpointsArray[cellIdInt] = newScore;
                     scoreBox.innerText = newScore.toString();
                     refreshScoreColors(scoreBox);
@@ -1629,13 +1643,31 @@ toolButtons.forEach((thisButton) => {
     const newMapButton = document.getElementById('new-map-button');
     newMapButton.addEventListener('click', newMap(24,24));
     */
-
+    
+    const newMapButtonTiny = document.getElementById('new-map-button-tiny');
+    newMapButtonTiny.addEventListener('click', () => {
+        newMap(12,12); // Recenter the grid and reset the zoom when the button is clicked
+    });
+    const newMapButtonSmall = document.getElementById('new-map-button-small');
+    newMapButtonSmall.addEventListener('click', () => {
+        newMap(16,16); // Recenter the grid and reset the zoom when the button is clicked
+    });
     // Set up a click event listener for the "Recenter Grid" button
     const newMapButton = document.getElementById('new-map-button');
     newMapButton.addEventListener('click', () => {
         newMap(24,24); // Recenter the grid and reset the zoom when the button is clicked
     });
     
+    const newMapButtonBig = document.getElementById('new-map-button-big');
+    newMapButtonBig.addEventListener('click', () => {
+        newMap(30,30); // Recenter the grid and reset the zoom when the button is clicked
+    });
+
+    
+    const newMapButtonHuge = document.getElementById('new-map-button-huge');
+    newMapButtonHuge.addEventListener('click', () => {
+        newMap(40,40); // Recenter the grid and reset the zoom when the button is clicked
+    });
     
 });
 //TODO:

@@ -10,6 +10,11 @@
       background-image: url("images/background2.png");
       background-repeat: repeat;
     }
+
+    @font-face {
+        font-family: 'Roboto';
+        src: url('files/Roboto-Light.ttf') format('truetype');
+    }
     .everything{
         display: flex;
         flex-direction: row; /* Arrange main-left and main-right side by side */
@@ -52,7 +57,7 @@
         padding-top: 5px;
         width: 90%;
         height: 5%;
-        font-family: Roboto;
+        font-family: Roboto,  Arial;
         font-size: 20px;
         font-weight: 700;
         text-align: center;
@@ -89,7 +94,7 @@
         text-align: center;
         vertical-align: bottom;
         font-size: 8px;
-        font-family: Roboto;
+        font-family: Roboto,  Arial;
         font-weight: 500;
         /*pointer-events: none;*/
     }
@@ -118,7 +123,7 @@
         text-align: center;
         vertical-align: bottom;
         font-size: 8px;
-        font-family: Roboto;
+        font-family: Roboto,  Arial;
         font-weight: 800;
         color: rgb(255, 255, 255);
         text-shadow: 
@@ -258,12 +263,15 @@
         background: rgb(59,166,8);
         background: linear-gradient(90deg, rgba(59,166,8,1) 26%, rgba(97,181,85,1) 89%);
         color: #002504;
-        font-family: Roboto;
+        font-family: Roboto,  Arial;
         font-size: 15px;
         font-weight: 800;
         line-height: 20px;
         vertical-align: middle;
         padding-top: 5px;
+    }
+    .prettyButtonSmall{
+        width: 19%;
     }
     .prettyButton:hover{
         background: rgb(136,218,97);
@@ -272,7 +280,7 @@
     .mapInfo{
         margin: auto;
         margin-top: 10px;
-        font-family: Roboto;
+        font-family: Roboto,  Arial;
         font-size: 14px;
         font-weight: 800;
         line-height: 18px;
@@ -418,13 +426,12 @@
         transition: filter 0.3s ease; /* Smooth transition for the hover effect */
     }
     .toolbox {
-    width: 300px;
+    width: 360px;
     margin: auto;
     text-align: center; /* Center-align text within the toolbox */
 }
 
-.drawgeometry,
-.drawscore {
+.drawgeometry{
     padding: 10px; /* Add some padding around the text */
     display: flex; /* Use flexbox to arrange labels in a row */
     flex-direction: row; /* Arrange labels in a row */
@@ -435,7 +442,7 @@
         background: rgb(59,166,8);
         background: linear-gradient(90deg, rgb(123, 185, 94) 26%, rgb(163, 194, 159) 89%);
         color: #002504;
-        font-family: Roboto;
+        font-family: Roboto,  Arial;
         font-size: 15px;
         font-weight: 800;
         vertical-align: middle;
@@ -443,6 +450,7 @@
         margin-bottom: 5px;
 }
 
+.drawscore,
 .drawpickups {
   padding: 10px; /* Add some padding around the text */
   display: flex; /* Use flexbox to arrange labels in a row */
@@ -454,7 +462,7 @@
   background: rgb(59, 166, 8);
   background: linear-gradient(90deg, rgb(123, 185, 94) 26%, rgb(163, 194, 159) 89%);
   color: #002504;
-  font-family: Roboto;
+  font-family: Roboto,  Arial;
   font-size: 15px;
   font-weight: 800;
   vertical-align: middle;
@@ -468,6 +476,8 @@
 .drawscore .addscore,
 .drawscore .subtractscore,
 .drawscore .add5score,
+.drawscore .add10score,
+.drawscore .add25score,
 .drawscore .subtract5score,
 .drawscore .zeroscore,
 .drawpickups .gemGreen, 
@@ -504,7 +514,7 @@
         background: rgb(59,166,8);
         background: linear-gradient(90deg, rgba(59,166,8,1) 26%, rgba(97,181,85,1) 89%);
         color: #002504;
-        font-family: Roboto;
+        font-family: Roboto,  Arial;
         font-size: 15px;
         font-weight: 800;
         vertical-align: middle;
@@ -519,6 +529,8 @@
 .drawscore .addscore:hover,
 .drawscore .subtractscore:hover,
 .drawscore .add5score:hover,
+.drawscore .add10score:hover,
+.drawscore .add25score:hover,
 .drawscore .subtract5score:hover,
 .drawscore .zeroscore:hover,
 .drawpickups .gemGreen:hover, 
@@ -592,6 +604,18 @@
 }
 .drawscore .add5score{
     background-image: url("images/plus5.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawscore .add10score{
+    background-image: url("images/plus10.png");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+.drawscore .add25score{
+    background-image: url("images/plus25.png");
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
@@ -743,11 +767,11 @@
 .drawgeometry .tooltitle,
 .drawscore .tooltitle,
 .drawpickups .tooltitle{
-    font-family: Roboto;
+    font-family: Roboto,  Arial;
     font-size: 15px;
     font-weight: 800;
     vertical-align: middle;
-    width: 90px;
+    width: 50px;
     height: 30px;
 }
 /* Style labels as buttons on hover */
@@ -767,7 +791,7 @@
         border-radius: 5px;
         background: rgb(59,166,8);
         background: linear-gradient(90deg, rgba(59,166,8,1) 26%, rgba(97,181,85,1) 89%);
-        font-family: Roboto;
+        font-family: Roboto,  Arial;
         font-size: 20px;
         font-weight: 800;
 }
@@ -777,6 +801,8 @@
 .drawgeometry .drawshutter.selected,
 .drawscore .addscore.selected,
 .drawscore .add5score.selected,
+.drawscore .add10score.selected,
+.drawscore .add25score.selected,
 .drawscore .subtractscore.selected,
 .drawscore .subtract5score.selected,
 .drawscore .zeroscore.selected,
@@ -816,7 +842,12 @@
                 <div class="logo"> </div>
                 <div class="logotext"></div>
             </div>
-            <label class="prettyButton" id="new-map-button">New map 24x24</label>
+            
+            <label class="prettyButton prettyButtonSmall" id="new-map-button-tiny">12x12</label>
+            <label class="prettyButton prettyButtonSmall" id="new-map-button-small">16x16</label>
+            <label class="prettyButton prettyButtonSmall" id="new-map-button">24x24</label>
+            <label class="prettyButton prettyButtonSmall" id="new-map-button-big">30x30</label>
+            <label class="prettyButton prettyButtonSmall" id="new-map-button-huge">40x40</label>
             <label class="prettyButton">
                 Open map (.lab)...
                 <input type="file" id="file-input" class="real-file-input" accept=".lab, .lvl">
@@ -827,17 +858,6 @@
             <label class="prettyButton" id="toggle-scores-button">Toggle Scores</label>
             <label class="prettyButton" id="toggle-start-goal-button">Toggle Start/Goal</label>
             <label class="prettyButton" id="save-map-button">Save Map...</label>
-            <!---
-            <div class="mapInfo">
-                <div class="mapInfoLine"><div class="mapInfoTitle">Map Size</div><div id="mapSize"> </div></div>
-                <div class="mapInfoLine"><div class="mapInfoTitle">Start</div><div id="startPoint"> </div></div>
-                <div class="mapInfoLine"><div class="mapInfoTitle">Goal</div><div id="goalPoint"> </div></div>
-                <div class="mapInfoLine"><div class="mapInfoTitle">Pickups</div><div id="pickups"> </div></div>
-                <div class="mapInfoLine"><div class="mapInfoTitle">Flag2</div><div id="flag2"> </div></div>
-                <div class="mapInfoLine"><div class="mapInfoTitle">Dots</div><div id="dots"> </div></div>
-                <div class="mapInfoLine"><div class="mapInfoTitle">Timer</div><div id="timer"> </div></div>
-            </div>
-            --->
             <div class="mapInfo">
                 <div class="mapInfoGroup">
                     <div class="mapInfoLine">
@@ -944,7 +964,7 @@
             <div class="toolbox">
                 <label class="toolboxtitle">Toolbox</label>
                 <div class="drawgeometry">
-                    <label class="tooltitle">Geometry</label>
+                    <label class="tooltitle">Base</label>
                     <label class="drawfloor" data-tool="floor"> </label>
                     <label class="drawwall" data-tool="wall"> </label>
                     <label class="drawhole" data-tool="hole"> </label>
@@ -954,6 +974,8 @@
                     <label class="tooltitle">Score</label>
                     <label class="addscore" data-tool="addscore"></label>
                     <label class="add5score" data-tool="add5score"></label>
+                    <label class="add10score" data-tool="add10score"></label>
+                    <label class="add25score" data-tool="add25score"></label>
                     <label class="subtractscore" data-tool="subtractscore"></label>
                     <label class="subtract5score" data-tool="subtract5score"></label>
                     <label class="zeroscore" data-tool="zeroscore"></label>
@@ -963,31 +985,28 @@
                     <label class="gemGreen" data-tool="gemGreen"> </label>
                     <label class="gemRed" data-tool="gemRed"> </label>
                     <label class="gemBlue" data-tool="gemBlue"> </label>
-                    <label class="closeShutters" data-tool="closeShutters"> </label>
+                    <label class="teleport1" title="Teleporter #1" data-tool="teleport1"> </label>
+                    <label class="teleport2" title="Teleporter #2" data-tool="teleport2"> </label>
+                    <label class="teleport3" title="Teleporter #3" data-tool="teleport3"> </label>
+                    <label class="teleport4" title="Teleporter #4" data-tool="teleport4"> </label>
                     <label class="tooltitle"> </label>
+                    <label class="closeShutters" title="Close shutters (pickup)" data-tool="closeShutters"> </label>
                     <label class="rabbit" data-tool="rabbit"> </label>
                     <label class="ghost" data-tool="ghost"> </label>
+                    <label class="target1" title="Teleport Target #1" data-tool="target1"> </label>
+                    <label class="target2" title="Teleport Target #2" data-tool="target2"> </label>
+                    <label class="target3" title="Teleport Target #3" data-tool="target3"> </label>
+                    <label class="target4" title="Teleport Target #4" data-tool="target4"> </label>
+                    <label class="tooltitle"> </label>
                     <label class="hourglass" data-tool="hourglass"> </label>
                     <label class="slow" data-tool="slow"> </label>
+                    <label class="eraser" title="Erase pickups" data-tool="eraser"> </label>
+                    <label class="dots" title="Place dots" data-tool="dots"> </label>
+                    <label class="dotseraser" title="Erase dots" data-tool="dotseraser"> </label>
+                    <label class="placestart" title="Starting point" data-tool="placestart"> </label>
+                    <label class="placegoal" title="Goal" data-tool="placegoal"> </label>
+                    <label class="tooltitle">Theme</label>
                     <label class="tooltitle"> </label>
-                    <label class="teleport1" data-tool="teleport1"> </label>
-                    <label class="teleport2" data-tool="teleport2"> </label>
-                    <label class="teleport3" data-tool="teleport3"> </label>
-                    <label class="teleport4" data-tool="teleport4"> </label>
-                    <label class="tooltitle"> </label>
-                    <label class="target1" data-tool="target1"> </label>
-                    <label class="target2" data-tool="target2"> </label>
-                    <label class="target3" data-tool="target3"> </label>
-                    <label class="target4" data-tool="target4"> </label>
-                    <label class="tooltitle"> </label>
-                    <label class="eraser" data-tool="eraser"> </label>
-                    <label class="dots" data-tool="dots"> </label>
-                    <label class="dotseraser" data-tool="dotseraser"> </label>
-                    <label class="tooltitle"> </label>
-                    <label class="placestart" data-tool="placestart"> </label>
-                    <label class="placegoal" data-tool="placegoal"> </label>
-                    <label class="tooltitle"> </label>
-                    <label class="tooltitle">Select theme</label>
                     <select id="selectTheme">
                         <option value="Billiard">Billiard</option>
                         <option value="Brick">Brick</option>
@@ -997,6 +1016,7 @@
                         <option value="Cone">Cone</option>
                         <option value="Demon">Demon (Unofficial patch)</option>
                         <option value="Electronic">Electronic</option>
+                        <option value="Fruit">Fruit (Unofficial patch)</option>
                         <option value="Hedge">Hedge</option>
                         <option value="House">House</option>
                         <option value="Ice">Ice</option>
